@@ -1,0 +1,111 @@
+import csv
+
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+    
+    def display_info(self):
+        print(f"Name: {self.name}")
+        print(f"Age: {self.age}")
+
+class Employee:
+    def __init__(self, employee_id, position):
+        self.employee_id = employee_id
+        self.position = position
+    
+    def display_info(self):
+        print(f"Employee ID: {self.employee_id}")
+        print(f"Position: {self.position}")
+
+class Staff(Person, Employee):
+    def __init__(self, name, age, employee_id, position, department):
+        Person.__init__(self, name, age)
+        Employee.__init__(self, employee_id, position)
+        self.department = department
+    
+    def display_info(self):
+        # Display information from both Person and Employee
+        Person.display_info(self)
+        Employee.display_info(self)
+        print(f"Department: {self.department}")
+    
+    def additional_info(self):
+        print(f"Department: {self.department}")
+
+# File Handling Functions
+
+def read_employee_info(filename):
+    employees = []
+    try:
+        with open(filename, 'r', newline='') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                if row:  # Check if the row is not empty
+                    # Assuming the CSV format is: name, age, employee_id, position, department
+                    employees.append(Staff(row[0], int(row[1]), row[2], row[3], row[4]))
+    except FileNotFoundError:
+        print(f"{filename} not found. Starting with an empty employee list.")
+    return employees
+
+def add_employee_info(filename, staff_member):
+    with open(filename, 'a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([staff_member.name, staff_member.age, staff_member.employee_id, staff_member.position, staff_member.department])
+    print("Employee added successfully!")
+
+def save_employee_info(filename, employees):
+    with open(filename, 'w', newline='') as file:
+        writer = csv.writer(file)
+        # Write the header row
+        writer.writerow(["Name", "Age", "Employee ID", "Position", "Department"])
+        for employee in employees:
+            writer.writerow([employee.name, employee.age, employee.employee_id, employee.position, employee.department])
+    print("Employee information saved successfully!")
+
+# Main program
+
+def main():
+    filename = "employees.csv"
+    employees = read_employee_info(filename)
+    
+    while True:
+        print("\nMenu:")
+        print("1. Display all employee info")
+        print("2. Add new employee")
+        print("3. Save all employee info")
+        print("4. Exit")
+        
+        choice = input("Enter your choice: ")
+        
+        if choice == '1':
+            if employees:
+                for employee in employees:
+                    print("\nEmployee Info:")
+                    employee.display_info()
+                    print("--------------------")
+            else:
+                print("No employees found.")
+        
+        elif choice == '2':
+            name = input("Enter employee name: ")
+            age = int(input("Enter employee age: "))
+            employee_id = input("Enter employee ID: ")
+            position = input("Enter employee position: ")
+            department = input("Enter department: ")
+            
+            new_staff = Staff(name, age, employee_id, position, department)
+            employees.append(new_staff)
+            add_employee_info(filename, new_staff)
+        
+        elif choice == '3':
+            save_employee_info(filename, employees)
+        
+        elif choice == '4':
+            print("Exiting the program.")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
